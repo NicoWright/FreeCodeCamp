@@ -4,26 +4,34 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Import data
-df = None
+df = pd.read_csv('medical_examination.csv')
 
 # Add 'overweight' column
-df['overweight'] = None
+df['overweight'] = [1 if cell>25 else 0 for cell in df['weight']/((df['height']/100)**2)]
 
 # Normalize data by making 0 always good and 1 always bad. If the value of 'cholesterol' or 'gluc' is 1, make the value 0. If the value is more than 1, make the value 1.
-
+df.replace({
+    'cholesterol':{1:0, 2:1, 3:1},
+    'gluc':{1:0, 2:1, 3:1}
+    }, inplace=True)
 
 # Draw Categorical Plot
 def draw_cat_plot():
     # Create DataFrame for cat plot using `pd.melt` using just the values from 'cholesterol', 'gluc', 'smoke', 'alco', 'active', and 'overweight'.
-    df_cat = None
-
-
+    df_cat = pd.melt(df, id_vars=['cardio'], value_vars=sorted(['cholesterol','gluc','smoke','alco','active','overweight']))
+    
     # Group and reformat the data to split it by 'cardio'. Show the counts of each feature. You will have to rename one of the columns for the catplot to work correctly.
-    df_cat = None
+    df_cat['total']=0
+    df_cat = df_cat.groupby(['cardio','variable','value'], as_index=False).count()
 
     # Draw the catplot with 'sns.catplot()'
-
-
+    fig = sns.catplot(x='variable',
+            y='total',
+            hue='value',
+            col='cardio',
+            kind='bar',
+            data=df_cat
+            ).fig
 
     # Do not modify the next two lines
     fig.savefig('catplot.png')
